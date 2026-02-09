@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -13,6 +13,7 @@ import { analyzeResumeAndGenerateATSScore } from '@/ai/flows/analyze-resume-ats-
 import { useToast } from '@/hooks/use-toast';
 
 export default function AnalyzePage() {
+  const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [jobRole, setJobRole] = useState('');
   const [jobDescription, setJobDescription] = useState('');
@@ -24,6 +25,10 @@ export default function AnalyzePage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const { toast } = useToast();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -86,6 +91,10 @@ export default function AnalyzePage() {
       setLoading(false);
     }
   };
+
+  if (!mounted) {
+    return null;
+  }
 
   return (
     <div className="container mx-auto px-4 py-12 max-w-5xl">
