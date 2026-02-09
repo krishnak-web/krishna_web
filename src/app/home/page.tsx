@@ -9,10 +9,10 @@ import {
   Settings, 
   PlusCircle, 
   FileText, 
-  ChevronRight,
-  TrendingUp,
-  Award,
-  ArrowRight
+  ChevronRight, 
+  TrendingUp, 
+  Award, 
+  ArrowRight 
 } from 'lucide-react';
 
 export default function UserHomePage() {

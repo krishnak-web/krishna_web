@@ -1,8 +1,8 @@
-
 import type {Metadata} from 'next';
 import './globals.css';
 import {Navbar} from '@/components/navbar';
 import {Toaster} from '@/components/ui/toaster';
+import { Footer } from '@/components/footer';
 
 export const metadata: Metadata = {
   title: 'ResumePilot AI | Advanced Resume Screening',
@@ -15,7 +15,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -24,11 +24,7 @@ export default function RootLayout({
       <body className="font-body antialiased min-h-screen flex flex-col">
         <Navbar />
         <main className="flex-1">{children}</main>
-        <footer className="border-t py-8 bg-muted/30">
-          <div className="container mx-auto px-4 text-center text-muted-foreground text-sm">
-            <p>&copy; {new Date().getFullYear()} ResumePilot AI. Built for the future of work.</p>
-          </div>
-        </footer>
+        <Footer />
         <Toaster />
       </body>
     </html>
