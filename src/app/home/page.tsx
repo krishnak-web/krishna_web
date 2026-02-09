@@ -58,7 +58,9 @@ export default function UserHomePage() {
                 <CardTitle className="text-2xl font-bold">Recent Activity</CardTitle>
                 <CardDescription>Your last few resume scans</CardDescription>
               </div>
-              <Button variant="ghost" className="text-primary hover:text-primary/80">View All</Button>
+              <Button variant="ghost" className="text-primary hover:text-primary/80" asChild>
+                <Link href="/analyze">View All</Link>
+              </Button>
             </CardHeader>
             <CardContent>
               <div className="divide-y">
@@ -117,11 +119,11 @@ export default function UserHomePage() {
                 <CardTitle className="text-lg">Account Tools</CardTitle>
               </CardHeader>
               <CardContent className="grid gap-4">
-                 <Button variant="outline" className="w-full justify-start gap-3 h-12">
-                    <Settings className="w-4 h-4" /> Profile Settings
+                 <Button variant="outline" className="w-full justify-start gap-3 h-12" asChild>
+                    <Link href="/home"><Settings className="w-4 h-4" /> Profile Settings</Link>
                  </Button>
-                 <Button variant="outline" className="w-full justify-start gap-3 h-12">
-                    <BarChart3 className="w-4 h-4" /> View All Stats
+                 <Button variant="outline" className="w-full justify-start gap-3 h-12" asChild>
+                    <Link href="/home"><BarChart3 className="w-4 h-4" /> View All Stats</Link>
                  </Button>
               </CardContent>
            </Card>

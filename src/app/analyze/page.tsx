@@ -107,71 +107,73 @@ export default function AnalyzePage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Tabs defaultValue="text" value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-2 mb-6">
-                  <TabsTrigger value="text" className="gap-2"><FileText className="w-4 h-4" /> Paste Text</TabsTrigger>
-                  <TabsTrigger value="file" className="gap-2"><Upload className="w-4 h-4" /> Upload PDF</TabsTrigger>
-                </TabsList>
-                
-                <TabsContent value="text" className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="resume">Resume Text</Label>
-                    <Textarea 
-                      id="resume"
-                      placeholder="Paste your resume content here..."
-                      className="min-h-[400px] resize-none font-body text-base leading-relaxed p-6"
-                      value={resumeText}
-                      onChange={(e) => setResumeText(e.target.value)}
-                    />
-                  </div>
-                </TabsContent>
+              <form onSubmit={handleAnalyze} className="space-y-6">
+                <Tabs defaultValue="text" value={activeTab} onValueChange={setActiveTab} className="w-full">
+                  <TabsList className="grid w-full grid-cols-2 mb-6">
+                    <TabsTrigger value="text" className="gap-2"><FileText className="w-4 h-4" /> Paste Text</TabsTrigger>
+                    <TabsTrigger value="file" className="gap-2"><Upload className="w-4 h-4" /> Upload PDF</TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="text" className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="resume">Resume Text</Label>
+                      <Textarea 
+                        id="resume"
+                        placeholder="Paste your resume content here..."
+                        className="min-h-[400px] resize-none font-body text-base leading-relaxed p-6"
+                        value={resumeText}
+                        onChange={(e) => setResumeText(e.target.value)}
+                      />
+                    </div>
+                  </TabsContent>
 
-                <TabsContent value="file" className="space-y-4">
-                  <div className="flex flex-col items-center justify-center border-2 border-dashed border-muted-foreground/20 rounded-2xl min-h-[400px] p-12 text-center transition-colors hover:bg-muted/50">
-                    {!resumeFile ? (
-                      <>
-                        <div className="bg-primary/10 p-4 rounded-full mb-4">
-                          <Upload className="w-8 h-8 text-primary" />
-                        </div>
-                        <h3 className="text-xl font-bold font-headline mb-2">Upload your PDF</h3>
-                        <p className="text-muted-foreground mb-6 max-w-xs mx-auto">
-                          Our AI will read your PDF directly to ensure formatting is preserved.
-                        </p>
-                        <Button onClick={() => fileInputRef.current?.click()} className="rounded-xl px-8">
-                          Select PDF File
-                        </Button>
-                      </>
-                    ) : (
-                      <div className="w-full max-w-md bg-card border rounded-2xl p-6 shadow-sm">
-                        <div className="flex items-center justify-between mb-4">
-                          <div className="flex items-center gap-3">
-                            <div className="bg-primary/10 p-2 rounded-lg">
-                              <FileText className="w-6 h-6 text-primary" />
-                            </div>
-                            <div className="text-left">
-                              <p className="font-bold truncate max-w-[200px]">{fileName}</p>
-                              <p className="text-xs text-muted-foreground">PDF Document Ready</p>
-                            </div>
+                  <TabsContent value="file" className="space-y-4">
+                    <div className="flex flex-col items-center justify-center border-2 border-dashed border-muted-foreground/20 rounded-2xl min-h-[400px] p-12 text-center transition-colors hover:bg-muted/50">
+                      {!resumeFile ? (
+                        <>
+                          <div className="bg-primary/10 p-4 rounded-full mb-4">
+                            <Upload className="w-8 h-8 text-primary" />
                           </div>
-                          <Button variant="ghost" size="icon" onClick={clearFile} className="hover:text-destructive">
-                            <X className="w-5 h-5" />
+                          <h3 className="text-xl font-bold font-headline mb-2">Upload your PDF</h3>
+                          <p className="text-muted-foreground mb-6 max-w-xs mx-auto">
+                            Our AI will read your PDF directly to ensure formatting is preserved.
+                          </p>
+                          <Button variant="outline" type="button" onClick={() => fileInputRef.current?.click()} className="rounded-xl px-8">
+                            Select PDF File
+                          </Button>
+                        </>
+                      ) : (
+                        <div className="w-full max-w-md bg-card border rounded-2xl p-6 shadow-sm">
+                          <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center gap-3">
+                              <div className="bg-primary/10 p-2 rounded-lg">
+                                <FileText className="w-6 h-6 text-primary" />
+                              </div>
+                              <div className="text-left">
+                                <p className="font-bold truncate max-w-[200px]">{fileName}</p>
+                                <p className="text-xs text-muted-foreground">PDF Document Ready</p>
+                              </div>
+                            </div>
+                            <Button variant="ghost" type="button" size="icon" onClick={clearFile} className="hover:text-destructive">
+                              <X className="w-5 h-5" />
+                            </Button>
+                          </div>
+                          <Button variant="outline" type="button" className="w-full" onClick={() => fileInputRef.current?.click()}>
+                            Change File
                           </Button>
                         </div>
-                        <Button variant="outline" className="w-full" onClick={() => fileInputRef.current?.click()}>
-                          Change File
-                        </Button>
-                      </div>
-                    )}
-                    <input 
-                      type="file" 
-                      ref={fileInputRef} 
-                      onChange={handleFileChange} 
-                      accept=".pdf" 
-                      className="hidden" 
-                    />
-                  </div>
-                </TabsContent>
-              </Tabs>
+                      )}
+                      <input 
+                        type="file" 
+                        ref={fileInputRef} 
+                        onChange={handleFileChange} 
+                        accept=".pdf" 
+                        className="hidden" 
+                      />
+                    </div>
+                  </TabsContent>
+                </Tabs>
+              </form>
             </CardContent>
           </Card>
         </div>
