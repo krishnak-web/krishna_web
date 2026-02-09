@@ -1,0 +1,238 @@
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user of the application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "User's full name."
+        },
+        "email": {
+          "type": "string",
+          "description": "User's email address.",
+          "format": "email"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the user was created.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "email",
+        "createdAt"
+      ]
+    },
+    "Resume": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Resume",
+      "type": "object",
+      "description": "Represents a resume uploaded by a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the resume entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N Resume)"
+        },
+        "resumeUrl": {
+          "type": "string",
+          "description": "URL of the resume stored in Firebase Storage.",
+          "format": "uri"
+        },
+        "extractedText": {
+          "type": "string",
+          "description": "Text extracted from the resume PDF."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the resume was uploaded.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "resumeUrl",
+        "extractedText",
+        "createdAt"
+      ]
+    },
+    "Job": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Job",
+      "type": "object",
+      "description": "Represents a job description provided by a user for resume analysis.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the job entity."
+        },
+        "role": {
+          "type": "string",
+          "description": "Job role specified by the user."
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed job description provided by the user."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the job description was created.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "role",
+        "description",
+        "createdAt"
+      ]
+    },
+    "Analysis": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Analysis",
+      "type": "object",
+      "description": "Represents the analysis of a resume against a job description.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the analysis entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N Analysis)"
+        },
+        "resumeId": {
+          "type": "string",
+          "description": "Reference to Resume. (Relationship: Resume 1:N Analysis)"
+        },
+        "jobId": {
+          "type": "string",
+          "description": "Reference to Job. (Relationship: Job 1:N Analysis)"
+        },
+        "atsScore": {
+          "type": "number",
+          "description": "ATS score generated for the resume."
+        },
+        "feedback": {
+          "type": "string",
+          "description": "Feedback from Gemini AI regarding the resume."
+        },
+        "missingSkills": {
+          "type": "string",
+          "description": "Skills identified as missing from the resume based on the job description."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the analysis was performed.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "resumeId",
+        "jobId",
+        "atsScore",
+        "feedback",
+        "missingSkills",
+        "createdAt"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user profiles.  Uses path-based ownership for user data.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "users/{userId}/resumes/{resumeId}",
+        "definition": {
+          "entityName": "Resume",
+          "schema": {
+            "$ref": "#/backend/entities/Resume"
+          },
+          "description": "Stores resumes uploaded by users. Includes denormalized 'userId' for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user who owns the resume."
+            },
+            {
+              "name": "resumeId",
+              "description": "The unique identifier for the resume."
+            }
+          ]
+        }
+      },
+      {
+        "path": "jobs/{jobId}",
+        "definition": {
+          "entityName": "Job",
+          "schema": {
+            "$ref": "#/backend/entities/Job"
+          },
+          "description": "Stores job descriptions provided by users.",
+          "params": [
+            {
+              "name": "jobId",
+              "description": "The unique identifier for the job description."
+            }
+          ]
+        }
+      },
+      {
+        "path": "users/{userId}/analyses/{analysisId}",
+        "definition": {
+          "entityName": "Analysis",
+          "schema": {
+            "$ref": "#/backend/entities/Analysis"
+          },
+          "description": "Stores analyses of resumes against job descriptions. Includes denormalized 'userId' for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user who owns the analysis."
+            },
+            {
+              "name": "analysisId",
+              "description": "The unique identifier for the analysis."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to optimize for security, scalability, and the specific access patterns of the ResumePilot AI application.  It leverages path-based ownership for user-specific data (Resumes and Analyses) and avoids hierarchical authorization dependencies by denormalizing user IDs into the subcollections. This allows security rules to be atomic and efficient. The `users/{userId}/resumes/{resumeId}` and `users/{userId}/analyses/{analysisId}` structures provide clear ownership and simplify security rules, ensuring that users can only access their own data. This structure achieves Authorization Independence by using explicit path-based ownership, removing the need for `get()` calls in security rules.  It supports required QAPs (rules are not filters) by leveraging the homogeneous security posture within collections.  The structure uses the DBAC (Database-Based Access Control) principle by relying solely on `request.auth.uid` and the document paths for authorization, avoiding custom claims.  This is essential for ensuring scalable security rules."
+  }
+}

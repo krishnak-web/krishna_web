@@ -1,0 +1,111 @@
+rules_version = '2';
+
+/**
+ * FIRESTORE SECURITY RULES ANALYSIS & PHILOSOPHY
+ * 
+ * Core Philosophy:
+ * This ruleset implements a strict Path-Based Ownership model. Security is enforced by 
+ * leveraging the hierarchical structure of the database where user-specific data is 
+ * nested directly under the user's unique identifier.
+ * 
+ * Data Structure:
+ * - /users/{userId}: Root profile for each user.
+ * - /users/{userId}/resumes/{resumeId}: Private resumes belonging to a specific user.
+ * - /users/{userId}/analyses/{analysisId}: Private AI analysis results belonging to a specific user.
+ * - /jobs/{jobId}: Global job descriptions used for analysis.
+ * 
+ * Key Security Decisions:
+ * 1. Authorization Independence: Subcollections (resumes and analyses) include denormalized 
+ *    'userId' fields. This allows rules to verify ownership using the document path 
+ *    without requiring expensive 'get()' calls to parent documents.
+ * 2. Immutable Ownership: Relational fields that establish ownership (like 'userId' or 'id') 
+ *    are enforced as immutable during updates to prevent data hijacking.
+ * 3. Prototyping Flexibility: While authorization (WHO can access) is strictly enforced, 
+ *    data schema (WHAT the data looks like) is kept flexible to allow for rapid iteration.
+ * 4. Resource Existence: All 'update' and 'delete' operations explicitly verify that 
+ *    the document exists before allowing the operation.
+ */
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // --- GLOBAL HELPER FUNCTIONS ---
+
+    /** @description Checks if the request is from a signed-in user. */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /** @description Checks if the authenticated user's UID matches the provided userId. */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /** @description Verifies ownership and ensures the resource exists for destructive operations. */
+    function isExistingOwner(userId) {
+      return isOwner(userId) && resource != null;
+    }
+
+    /** @description Ensures that critical relational fields are not modified during an update. */
+    function isUnchanged(field) {
+      return request.resource.data[field] == resource.data[field];
+    }
+
+    // --- COLLECTION RULES ---
+
+    /**
+     * @description Rules for the User profile document.
+     * @path /users/{userId}
+     * @allow (get, list, create, update, delete) if authenticated user matches {userId}.
+     * @deny Any request where auth.uid does not match the document ID.
+     * @principle Enforces path-based ownership and validates relational integrity on creation.
+     */
+    match /users/{userId} {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.id == userId;
+      allow update: if isExistingOwner(userId) && isUnchanged('id');
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Rules for user-specific resumes.
+     * @path /users/{userId}/resumes/{resumeId}
+     * @allow (create) if auth matches path and data.userId matches path.
+     * @deny (update) if attempting to change the userId ownership field.
+     * @principle Uses denormalized userId for authorization independence.
+     */
+    match /users/{userId}/resumes/{resumeId} {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.userId == userId;
+      allow update: if isExistingOwner(userId) && isUnchanged('userId');
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Rules for user-specific AI analyses.
+     * @path /users/{userId}/analyses/{analysisId}
+     * @allow (get, list) if the user owns the parent path.
+     * @deny (create) if the internal userId field does not match the authenticated user.
+     * @principle Ensures private data remains accessible only to the owner.
+     */
+    match /users/{userId}/analyses/{analysisId} {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.userId == userId;
+      allow update: if isExistingOwner(userId) && isUnchanged('userId');
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Rules for Job descriptions.
+     * @path /jobs/{jobId}
+     * @allow (get, list) for any signed-in user.
+     * @deny (write) Restricted due to missing ownership field in the schema.
+     * @principle Protects global data while flagging missing schema requirements.
+     */
+    match /jobs/{jobId} {
+      allow get, list: if isSignedIn();
+      // CRITICAL: Cannot implement owner-only writes. The 'Job' entity is missing an 'ownerId' or 'userId' field.
+      allow create, update, delete: if false; // TODO: Add owner validation once the schema is updated with an ownership field.
+    }
+  }
+}
