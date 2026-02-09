@@ -15,15 +15,19 @@ import {
   FileText, 
   ArrowLeft,
   Share2,
-  Download
+  Download,
+  Building2,
+  Sparkles
 } from 'lucide-react';
 import { AnalyzeResumeAndGenerateATSScoreOutput } from '@/ai/flows/analyze-resume-ats-score';
 
 export default function ResultPage() {
+  const [mounted, setMounted] = useState(false);
   const [data, setData] = useState<AnalyzeResumeAndGenerateATSScoreOutput | null>(null);
   const router = useRouter();
 
   useEffect(() => {
+    setMounted(true);
     const saved = localStorage.getItem('resumeAnalysis');
     if (saved) {
       setData(JSON.parse(saved));
@@ -32,7 +36,7 @@ export default function ResultPage() {
     }
   }, [router]);
 
-  if (!data) return null;
+  if (!mounted || !data) return null;
 
   const getStrengthColor = (strength: string) => {
     switch (strength.toLowerCase()) {
@@ -62,55 +66,88 @@ export default function ResultPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        <Card className="lg:col-span-5 border-2 h-fit">
-          <CardHeader className="text-center pb-2">
-            <CardTitle className="text-2xl">Your ATS Score</CardTitle>
-            <CardDescription>Overall resume compatibility</CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-col items-center">
-            <div className="relative w-48 h-48 flex items-center justify-center mb-6">
-               <svg className="w-full h-full transform -rotate-90">
-                 <circle 
-                    cx="96" cy="96" r="80" 
-                    fill="none" stroke="currentColor" 
-                    strokeWidth="12" 
-                    className="text-muted"
-                 />
-                 <circle 
-                    cx="96" cy="96" r="80" 
-                    fill="none" stroke="currentColor" 
-                    strokeWidth="12" 
-                    strokeDasharray={2 * Math.PI * 80}
-                    strokeDashoffset={2 * Math.PI * 80 * (1 - data.atsScore / 100)}
-                    strokeLinecap="round"
-                    className="text-primary transition-all duration-1000"
-                 />
-               </svg>
-               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-6xl font-bold font-headline">{data.atsScore}</span>
-                  <span className="text-muted-foreground font-medium">/ 100</span>
+        {/* Score & Company Fit Card */}
+        <div className="lg:col-span-5 space-y-6">
+          <Card className="border-2 h-fit overflow-hidden">
+            <CardHeader className="text-center pb-2">
+              <CardTitle className="text-2xl">Your ATS Score</CardTitle>
+              <CardDescription>Overall resume compatibility</CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col items-center">
+              <div className="relative w-48 h-48 flex items-center justify-center mb-6">
+                 <svg className="w-full h-full transform -rotate-90">
+                   <circle 
+                      cx="96" cy="96" r="80" 
+                      fill="none" stroke="currentColor" 
+                      strokeWidth="12" 
+                      className="text-muted"
+                   />
+                   <circle 
+                      cx="96" cy="96" r="80" 
+                      fill="none" stroke="currentColor" 
+                      strokeWidth="12" 
+                      strokeDasharray={2 * Math.PI * 80}
+                      strokeDashoffset={2 * Math.PI * 80 * (1 - data.atsScore / 100)}
+                      strokeLinecap="round"
+                      className="text-primary transition-all duration-1000"
+                   />
+                 </svg>
+                 <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <span className="text-6xl font-bold font-headline">{data.atsScore}</span>
+                    <span className="text-muted-foreground font-medium">/ 100</span>
+                 </div>
+              </div>
+              
+              <Badge variant="outline" className={`text-lg px-4 py-1 mb-6 rounded-full border-2 ${getStrengthColor(data.resumeStrength)}`}>
+                {data.resumeStrength} Strength
+              </Badge>
+
+              <div className="w-full space-y-4 bg-muted/30 p-6 rounded-2xl">
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-muted-foreground">Keyword Match</span>
+                  <span className="font-bold">{(data.matchedSkills.length / (data.matchedSkills.length + data.missingSkills.length) * 100).toFixed(0)}%</span>
+                </div>
+                <Progress value={85} className="h-2" />
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-muted-foreground">Formatting Check</span>
+                  <span className="font-bold text-green-600">Passed</span>
+                </div>
+                <Progress value={100} className="h-2" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-2 bg-primary/5 border-primary/20 shadow-lg relative overflow-hidden group">
+            <CardHeader>
+               <div className="flex items-center gap-2 mb-2">
+                  <Sparkles className="w-5 h-5 text-primary animate-pulse" />
+                  <span className="text-xs font-bold uppercase tracking-widest text-primary">AI Matching Engine</span>
                </div>
-            </div>
-            
-            <Badge variant="outline" className={`text-lg px-4 py-1 mb-6 rounded-full border-2 ${getStrengthColor(data.resumeStrength)}`}>
-              {data.resumeStrength} Strength
-            </Badge>
-
-            <div className="w-full space-y-4 bg-muted/30 p-6 rounded-2xl">
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-muted-foreground">Keyword Match</span>
-                <span className="font-bold">85%</span>
+               <CardTitle className="flex items-center gap-3 text-2xl">
+                  Best Company Fit
+               </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center gap-4 bg-white p-4 rounded-xl border-2 border-primary/10 shadow-sm">
+                <div className="bg-primary/10 p-3 rounded-lg">
+                  <Building2 className="w-8 h-8 text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Highest Probability Match</p>
+                  <p className="text-2xl font-bold font-headline">{data.bestCompanyFit}</p>
+                </div>
               </div>
-              <Progress value={85} className="h-2" />
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-muted-foreground">Formatting Check</span>
-                <span className="font-bold text-green-600">Perfect</span>
-              </div>
-              <Progress value={100} className="h-2" />
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                {data.matchReason}
+              </p>
+            </CardContent>
+            <div className="absolute -bottom-6 -right-6 opacity-5 rotate-12">
+               <Building2 className="w-32 h-32" />
             </div>
-          </CardContent>
-        </Card>
+          </Card>
+        </div>
 
+        {/* Feedback Card */}
         <div className="lg:col-span-7 space-y-8">
           <Card className="border-2">
             <CardHeader>

@@ -2,6 +2,7 @@
 'use server';
 /**
  * @fileOverview Analyzes a resume (text or PDF) against a job description and generates an ATS score.
+ * Now includes a best company fit prediction.
  *
  * - analyzeResumeAndGenerateATSScore - A function that handles the resume analysis and ATS score generation process.
  * - AnalyzeResumeAndGenerateATSScoreInput - The input type for the analyzeResumeAndGenerateATSScore function.
@@ -29,6 +30,8 @@ const AnalyzeResumeAndGenerateATSScoreOutputSchema = z.object({
   missingSkills: z.array(z.string()).describe('List of skills from the job description that are missing from the resume.'),
   feedback: z.string().describe('Feedback and suggestions for improving the resume.'),
   resumeStrength: z.string().describe('Overall resume strength (High / Medium / Low).'),
+  bestCompanyFit: z.string().describe('Predict the most likely top-tier company that would hire this candidate based on their profile (e.g. Google, Meta, Amazon, Microsoft, Netflix, Apple, or Startups).'),
+  matchReason: z.string().describe('The reason why this candidate is a great fit for the predicted company.'),
 });
 export type AnalyzeResumeAndGenerateATSScoreOutput = z.infer<typeof AnalyzeResumeAndGenerateATSScoreOutputSchema>;
 
@@ -40,7 +43,7 @@ const analyzeResumeAtsPrompt = ai.definePrompt({
   name: 'analyzeResumeAtsPrompt',
   input: {schema: AnalyzeResumeAndGenerateATSScoreInputSchema},
   output: {schema: AnalyzeResumeAndGenerateATSScoreOutputSchema},
-  prompt: `You are an expert ATS (Applicant Tracking System) analyst. Your task is to evaluate a resume against a job description.
+  prompt: `You are an expert ATS (Applicant Tracking System) analyst and tech recruiter. Your task is to evaluate a resume against a job description and predict cultural/technical fit for major tech firms.
 
 Analyze the following resume against the provided job description.
 
@@ -55,11 +58,13 @@ Text: {{{resumeText}}}
 {{/if}}
 
 Please provide:
-1. An ATS score from 0 to 100 based on keyword matching, experience alignment, and role suitability.
-2. A list of skills found in the resume that match the job requirements.
-3. A list of critical skills or keywords missing from the resume based on the job description.
-4. Actionable feedback for the candidate to improve their resume.
-5. Overall resume strength: High, Medium, or Low.`,
+1. An ATS score from 0 to 100.
+2. Matched skills.
+3. Missing skills.
+4. Actionable feedback.
+5. Overall strength (High, Medium, or Low).
+6. Predicted "Best Company Fit" from industry leaders (FAANG/MAMAA or top startups) based on the candidate's technical depth, scale of impact, and project types.
+7. A specific reason for that match.`,
 });
 
 const analyzeResumeAndGenerateATSScoreFlow = ai.defineFlow(
