@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from 'next/link';
@@ -12,7 +11,8 @@ import {
   FileText, 
   ChevronRight,
   TrendingUp,
-  Award
+  Award,
+  ArrowRight
 } from 'lucide-react';
 
 export default function UserHomePage() {
