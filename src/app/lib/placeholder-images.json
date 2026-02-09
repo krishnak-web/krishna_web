@@ -1,0 +1,17 @@
+
+{
+  "placeholderImages": [
+    {
+      "id": "hero-image",
+      "description": "Professional workspace with resume and laptop",
+      "imageUrl": "https://picsum.photos/seed/resume-hero/1200/600",
+      "imageHint": "professional resume"
+    },
+    {
+      "id": "analysis-preview",
+      "description": "Abstract data visualization representing ATS analysis",
+      "imageUrl": "https://picsum.photos/seed/analysis/600/400",
+      "imageHint": "data analysis"
+    }
+  ]
+}
