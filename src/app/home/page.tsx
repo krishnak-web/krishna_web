@@ -97,14 +97,14 @@ export default function UserHomePage() {
            <Card className="bg-accent text-accent-foreground border-0 shadow-xl overflow-hidden relative group cursor-pointer" asChild>
              <Link href="/companies">
                <CardHeader>
-                  <CardTitle className="text-2xl">Reference Guides</CardTitle>
-                  <CardDescription className="text-accent-foreground/70">Benchmark against the best</CardDescription>
+                  <CardTitle className="text-2xl text-foreground">Reference Guides</CardTitle>
+                  <CardDescription className="text-foreground/70">Benchmark against the best</CardDescription>
                </CardHeader>
                <CardContent>
-                  <p className="mb-4 text-sm leading-relaxed">See how top-tier resumes are constructed at companies like Google, Meta, and Netflix.</p>
+                  <p className="mb-4 text-sm leading-relaxed text-foreground">See how top-tier resumes are constructed at companies like Google, Meta, and Netflix.</p>
                   <div className="flex justify-end">
                     <div className="bg-white/20 p-2 rounded-full group-hover:bg-white/30 transition-colors">
-                       <ArrowRight className="w-6 h-6" />
+                       <ArrowRight className="w-6 h-6 text-foreground" />
                     </div>
                   </div>
                </CardContent>
