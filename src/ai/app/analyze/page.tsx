@@ -107,7 +107,7 @@ export default function AnalyzePage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-6">
+              <form onSubmit={handleAnalyze} className="space-y-6">
                 <Tabs defaultValue="text" value={activeTab} onValueChange={setActiveTab} className="w-full">
                   <TabsList className="grid w-full grid-cols-2 mb-6">
                     <TabsTrigger value="text" className="gap-2"><FileText className="w-4 h-4" /> Paste Text</TabsTrigger>
@@ -173,7 +173,7 @@ export default function AnalyzePage() {
                     </div>
                   </TabsContent>
                 </Tabs>
-              </div>
+              </form>
             </CardContent>
           </Card>
         </div>
@@ -182,7 +182,7 @@ export default function AnalyzePage() {
           <Card className="border-2 shadow-xl shadow-primary/5">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-primary" />
+                <Sparkles className="w-5 h-5 text-accent" />
                 Target Job
               </CardTitle>
               <CardDescription>
@@ -223,6 +223,20 @@ export default function AnalyzePage() {
                 )}
               </Button>
             </CardContent>
+          </Card>
+
+          <Card className="bg-primary text-primary-foreground border-0 overflow-hidden relative">
+             <CardHeader>
+                <CardTitle className="text-xl">Pro Tip</CardTitle>
+             </CardHeader>
+             <CardContent>
+                <p className="text-sm opacity-90 leading-relaxed">
+                  Uploading a PDF allows Gemini AI to analyze your layout and visual hierarchy, which are often key for ATS systems.
+                </p>
+             </CardContent>
+             <div className="absolute -bottom-4 -right-4 opacity-10">
+                <Sparkles className="w-24 h-24" />
+             </div>
           </Card>
         </div>
       </div>
